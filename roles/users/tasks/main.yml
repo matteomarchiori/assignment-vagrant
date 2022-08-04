@@ -48,4 +48,36 @@
 
 - name: Install packages based on package.json.
   community.general.npm:
-    path: /home/matteomarchiori/battleship   
+    path: /home/matteomarchiori/battleship
+
+- name: Run battleship parcel
+  command: npm run dev & disown
+  args:
+    chdir: /home/matteomarchiori/battleship
+
+- name: Run battleship server.js
+  command: npm run start & disown
+  args:
+    chdir: /home/matteomarchiori/battleship    
+
+
+- name: delete default nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+
+- name: copy nginx proxy configuration
+  template:
+    src: battleshipproxy
+    dest: /etc/nginx/sites-enabled/battleshipproxy
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart nginx
+
+handlers:
+  - name: restart nginx
+    service:
+      name: nginx
+      state: restarted
