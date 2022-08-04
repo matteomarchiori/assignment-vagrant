@@ -49,20 +49,25 @@
   args:
     chdir: /home/matteomarchiori/battleship
 
-- name: Install pm2
-  command: sudo npm install pm2 -g
-
-
 - name: Run battleship parcel
-  command: pm2 --name BattleShip start npm -- dev
+  command: npm run dev
   args:
     chdir: /home/matteomarchiori/battleship
+  async: 1000
+  poll: 0  
 
 - name: Run battleship server.js
-  command: pm2 --name Websocket start npm -- start
+  command: npm run start
   args:
-    chdir: /home/matteomarchiori/battleship    
+    chdir: /home/matteomarchiori/battleship
+  async: 1000
+  poll: 0 
 
+- name: check status
+  shell: ps aux | grep npm
+  register: app_status
+
+- debug: msg: {{ app_status.stdout_lines}}
 
 #- name: delete default nginx site
 #  file:
