@@ -1,0 +1,46 @@
+- name: Add my user
+  ansible.builtin.user:
+    name: mmarchiori
+    create_home: true
+    group: sudo
+    password: $6$Bup0lmjBItHs$Gik6fvCh/n3IMcmvt5iV1Dp4fl4itegO9s48HfIAcYMDsmCrAhQUYyU5tlXcEX2Ws1STn4J/.Qu8lPoNlDLLA0
+    update_password: always
+    shell: /bin/bash
+    state: present
+
+- name: Add authorized_key
+  authorized_key:
+    user: mmarchiori
+    state: present
+    key: "https://github.com/matteomarchiori.keys"
+    validate_certs: false
+
+- name: Disable root login over SSH
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
+  notify:
+    - restart sshd
+
+- name: Disable password login
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^PasswordAuthentication" line="PasswordAuthentication no" state=present
+  notify:
+    - restart sshd
+
+- name: Install basic packages
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - htop
+    - git 
+    - vim 
+    - traceroute
+    - net-tools
+    - iftop
+    - iperf 
+    - mosh
+    - speedtest-cli
+    - python3-pip
+    - jupyter
+
+- name: Run jupyter
+  command: jupyter notebook --no-browser --port=8888 --ip=0.0.0.0 --NotebookApp.token='' --NotebookApp.password='' --allow-root & disown    
