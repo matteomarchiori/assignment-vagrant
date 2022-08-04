@@ -46,38 +46,46 @@
     dest: /home/matteomarchiori/battleship
     version: master
 
+- name: Change file ownership, group and permissions
+  command: sudo chown -R vagrant:vagrant battleship
+  args:
+    chdir: /home/matteomarchiori    
+
+#- name: Install packages based on package.json.
+#  community.general.npm:
+#    path: /home/matteomarchiori/battleship
+
 - name: Install packages based on package.json.
-  community.general.npm:
-    path: /home/matteomarchiori/battleship
+  command: npm install
+  args:
+    chdir: /home/matteomarchiori/battleship
+
+- name: Install pm2
+  command: sudo npm install pm2 -g
+
 
 - name: Run battleship parcel
-  command: npm run dev & disown
+  command: pm2 --name BattleShip start npm -- dev
   args:
     chdir: /home/matteomarchiori/battleship
 
 - name: Run battleship server.js
-  command: npm run start & disown
+  command: pm2 --name Websocket start npm -- start
   args:
     chdir: /home/matteomarchiori/battleship    
 
 
-- name: delete default nginx site
-  file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
-  notify: restart nginx
-
-- name: copy nginx proxy configuration
-  template:
-    src: battleshipproxy
-    dest: /etc/nginx/sites-enabled/battleshipproxy
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart nginx
-
-handlers:
-  - name: restart nginx
-    service:
-      name: nginx
-      state: restarted
+#- name: delete default nginx site
+#  file:
+#    path: /etc/nginx/sites-enabled/default
+#    state: absent
+#  notify: restart nginx
+#
+#- name: copy nginx proxy configuration
+#  template:
+#    src: battleshipproxy
+#    dest: /etc/nginx/sites-enabled/battleshipproxy
+#    owner: root
+#    group: root
+#    mode: '0644'
+#  notify: restart nginx
