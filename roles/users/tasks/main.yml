@@ -7,23 +7,12 @@
     update_password: always
     shell: /bin/bash
     state: present
-#
-#- name: Add authorized_key
-#  authorized_key:
-#    user: matteomarchiori
-#    state: present
-#    key: "https://github.com/matteomarchiori.keys"
-#    validate_certs: false
-#
-#- name: Disable root login over SSH
-#  lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
-#  notify:
-#    - restart sshd
-#
-#- name: Disable password login
-#  lineinfile: dest=/etc/ssh/sshd_config regexp="^PasswordAuthentication" line="PasswordAuthentication no" state=present
-#  notify:
-#    - restart sshd
+
+- name: Update repositories cache and install "foo" package
+  ansible.builtin.apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 3600
 
 - name: Install basic packages
   package:
